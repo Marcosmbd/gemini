@@ -36,13 +36,13 @@ def generate(instruction, prompt):
 
     model = "gemini-2.0-flash-001"
     
-    # 🔹 Construindo o contexto da conversa a partir do histórico
+    # Construindo o contexto da conversa a partir do histórico
     contents = []
     for message in st.session_state.messages:
         role = "user" if message["role"] == "user" else "model"
         contents.append(types.Content(role=role, parts=[types.Part.from_text(text=message["content"])]))
 
-    # 🔹 Adiciona a pergunta atual
+    # Adiciona a pergunta atual
     contents.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
 
     tools = [
