@@ -61,7 +61,7 @@ def generate(instruction, prompt):
 
     response = client.models.generate_content(
         model=model,
-        contents=contents,  # 🔹 Agora o Gemini recebe TODO o histórico
+        contents=contents,  # Gemini recebe o histórico
         config=generate_content_config,
     )
 
