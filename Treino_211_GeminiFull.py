@@ -36,37 +36,32 @@ def generate(instruction, prompt):
 
     model = "gemini-2.0-flash-001"
     
-    contents = [
-        types.Content(
-            role="user",
-            parts=[types.Part.from_text(text=prompt)]
-        )
-    ]
-    
+    # 🔹 Construindo o contexto da conversa a partir do histórico
+    contents = []
+    for message in st.session_state.messages:
+        role = "user" if message["role"] == "user" else "model"
+        contents.append(types.Content(role=role, parts=[types.Part.from_text(text=message["content"])]))
+
+    # 🔹 Adiciona a pergunta atual
+    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
+
     tools = [
         types.Tool(retrieval=types.Retrieval(vertex_ai_search=types.VertexAISearch(
             datastore=st.secrets["google_cloud"]["datastore"]
-        )))
-    ]
-
+        )))]
+    
     generate_content_config = types.GenerateContentConfig(
-        temperature=0.5,
+        temperature=0.2,
         top_p=0.95,
         max_output_tokens=8192,
         response_modalities=["TEXT"],
-        safety_settings=[
-            types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="OFF"),
-            types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="OFF"),
-            types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="OFF"),
-            types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="OFF"),
-        ],
         tools=tools,
-        system_instruction=[types.Part.from_text(text=instruction)],  # Instrução fixa
+        system_instruction=[types.Part.from_text(text=instruction)],
     )
 
     response = client.models.generate_content(
         model=model,
-        contents=contents,
+        contents=contents,  # 🔹 Agora o Gemini recebe TODO o histórico
         config=generate_content_config,
     )
 
